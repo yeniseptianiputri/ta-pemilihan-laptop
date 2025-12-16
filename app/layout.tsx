@@ -1,8 +1,9 @@
+﻿import type { Metadata } from "next";
 import "./globals.css";
 
-export const metadata = {
-  title: "Aplikasi Pemilihan Laptop",
-  description: "Dibuat dengan Next.js dan Tailwind CSS",
+export const metadata: Metadata = {
+  title: "SPK Pembelian Laptop",
+  description: "Rekomendasi laptop berbasis preferensi pelanggan",
 };
 
 export default function RootLayout({
@@ -10,27 +11,30 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const year = new Date().getFullYear();
+
   return (
     <html lang="id">
-      <body className="bg-gray-100 text-gray-900">
-        {/* NAVBAR */}
-        <header className="bg-white shadow-md">
-          <nav className="max-w-6xl mx-auto p-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-blue-600">
-              Laptop Selector
+      <body className="bg-gradient-to-b from-slate-50 to-white text-slate-900">
+        <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
+          <div className="mx-auto flex max-w-5xl flex-col gap-1 px-6 py-5">
+            <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
+              Sistem Pendukung Keputusan
+            </p>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              Advisor Laptop Cerdas
             </h1>
-          </nav>
+            <p className="text-sm text-slate-500">
+              Fokus pada pengalaman pelanggan tanpa modul admin.
+            </p>
+          </div>
         </header>
 
-        {/* CONTENT */}
-        <main className="max-w-6xl mx-auto p-6 min-h-screen">
-          {children}
-        </main>
+        <main className="mx-auto min-h-screen max-w-5xl px-6 py-10">{children}</main>
 
-        {/* FOOTER */}
-        <footer className="bg-white border-t mt-10">
-          <div className="max-w-6xl mx-auto p-4 text-center text-sm text-gray-600">
-            © 2025 Laptop Selector — Made with Next.js & Tailwind CSS
+        <footer className="border-t border-slate-200 bg-white/80">
+          <div className="mx-auto max-w-5xl px-6 py-4 text-xs text-slate-500">
+            &copy; {year} SPK Pembelian Laptop - Dibangun dengan Next.js dan Tailwind CSS
           </div>
         </footer>
       </body>

@@ -1,29 +1,37 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
-import { laptops } from "../data/laptops";
-import LaptopCard from "../components/LaptopCard";
-import FilterPanel from "../components/FilterPanel";
+import { useRouter } from "next/navigation";
+import FormCard from "../components/FormCard";
+import Badge from "../components/Badge";
+import { savePreference } from "../lib/storage";
+import { Preference } from "../lib/types";
 
-export default function Home() {
-  const [minRam, setMinRam] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(Infinity);
+export default function HomePage() {
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
 
-  const filtered = laptops.filter((l) => 
-    l.ram >= minRam && l.price <= maxPrice
-  );
+  const handleSubmit = (preference: Preference) => {
+    setSubmitting(true);
+    savePreference(preference);
+    router.push("/recommendation");
+  };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">Aplikasi Pemilihan Laptop</h1>
-
-      <FilterPanel setMinRam={setMinRam} setMaxPrice={setMaxPrice} />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((l) => (
-          <LaptopCard key={l.id} laptop={l} />
-        ))}
+    <section className="space-y-10">
+      <div className="space-y-4 text-center">
+        <Badge>SPK Pembelian Laptop</Badge>
+        <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
+          Temukan laptop ideal sesuai kebutuhan Anda
+        </h1>
+        <p className="mx-auto max-w-2xl text-base text-slate-600">
+          Sistem ini membantu pelanggan menentukan pilihan melalui metode SAW
+          sederhana. Masukkan kebutuhan, lalu kami tampilkan 3 rekomendasi utama
+          yang siap dibeli.
+        </p>
       </div>
-    </div>
+
+      <FormCard onSubmit={handleSubmit} isSubmitting={submitting} />
+    </section>
   );
 }
