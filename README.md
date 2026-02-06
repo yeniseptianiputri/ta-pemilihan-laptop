@@ -1,48 +1,52 @@
-# SPK Pembelian Laptop
+# SPK Pemilihan Laptop
 
-Aplikasi Next.js (App Router) dengan TypeScript dan Tailwind CSS untuk membantu pelanggan memilih laptop terbaik berdasarkan kebutuhan dan budget menggunakan metode Simple Additive Weighting (SAW).
+Aplikasi Next.js (App Router) dengan TypeScript dan Tailwind CSS. Fokus pada contoh clean architecture yang sederhana: katalog laptop, admin CRUD, dan rekomendasi Weighted Product (WP) berbasis data lokal.
 
 ## Fitur Utama
 
-| Fitur | Deskripsi |
-| --- | --- |
-| Landing Pelanggan | Halaman utama (`app/page.tsx`) berisi hero singkat dan FormCard untuk mengisi tujuan penggunaan, budget, serta prioritas pembelian. |
-| Form Preferensi | Komponen `FormCard` memiliki validasi budget > 0, dropdown tujuan (Kuliah/Office, Programming, Desain, Gaming), dan pilihan prioritas (Performa, Hemat, Seimbang). |
-| Penyimpanan Preferensi | `lib/storage.ts` menyimpan preferensi ke `localStorage` sehingga data terbawa saat navigasi ke halaman rekomendasi. |
-| Perhitungan SAW | `lib/mcdm.ts` menghitung skor menggunakan data dummy (`lib/mockData.ts`) dengan bobot otomatis berdasar prioritas. Kriteria benefit: CPU/RAM/Storage/GPU. Kriteria cost: harga. |
-| Filter Budget & Warning | Sistem hanya menilai laptop yang memenuhi budget; jika tidak ada, otomatis ambil 3 termurah dan memberikan badge peringatan "budget terlalu rendah". |
-| Hasil Rekomendasi | Halaman `app/recommendation/page.tsx` menampilkan ringkasan preferensi, badge peringatan, dan top 3 laptop lewat `ResultCard`. Tiap kartu memuat nama, harga, spesifikasi singkat, skor akhir, dan tombol "Lihat alasan". |
-| Penjelasan Natural | `lib/llm.ts` menyimulasikan jawaban LLM yang menjelaskan mengapa laptop tertentu cocok berdasarkan preferensi dan kriteria dominan. |
-| UI Responsif | Seluruh komponen menggunakan Tailwind tanpa library tambahan; tampilan tetap profesional dan ringan, fokus pada role pelanggan. |
+- Landing page berisi title, pencarian, dan daftar laptop.
+- Admin panel untuk CRUD spesifikasi laptop (tersimpan di localStorage).
+- Halaman rekomendasi memakai metode Weighted Product dari data katalog.
+- Halaman konsultasi untuk tanya bot (butuh login user dan API key).
+- Login user mendukung register sederhana (disimpan di localStorage).
+
+## Konfigurasi Environment
+
+Salin `.env.example` ke `.env` lalu sesuaikan jika perlu:
+
+```
+NEXT_PUBLIC_APP_NAME="SPK Pemilihan Laptop"
+NEXT_PUBLIC_ADMIN_EMAIL="admin@laptop.local"
+NEXT_PUBLIC_ADMIN_PASSWORD="admin123"
+NEXT_PUBLIC_USER_EMAIL="user@laptop.local"
+NEXT_PUBLIC_USER_PASSWORD="user123"
+OPENAI_API_KEY="isi_api_key_anda"
+OPENAI_MODEL="gpt-4.1-mini"
+```
 
 ## Struktur Direktori
 
 ```
-app/
-+- page.tsx                 # Landing pelanggan + form
-+- recommendation/page.tsx  # Halaman hasil rekomendasi
-+- layout.tsx               # Layout global dengan header & footer
-components/
-+- Badge.tsx
-+- FormCard.tsx
-+- ResultCard.tsx
-+- Loading.tsx
-lib/
-+- types.ts
-+- mockData.ts
-+- mcdm.ts
-+- llm.ts
-+- storage.ts
-public/
-tailwind.config.ts
+src/
+├── app/
+│   ├── page.tsx
+│   ├── rekomendasi/page.tsx
+│   └── admin/page.tsx
+├── components/
+│   ├── LaptopCatalog.tsx
+│   ├── LaptopForm.tsx
+│   └── LaptopTable.tsx
+├── domain/
+│   └── weightedProduct.ts
+├── application/
+│   ├── laptopService.ts
+│   └── rekomendasiService.ts
+├── data/
+│   └── laptopData.ts
+└── lib/
+    ├── llmHelper.ts
+    └── laptopStorage.ts
 ```
-
-## Teknologi
-
-- Next.js App Router (TypeScript)
-- Tailwind CSS untuk styling
-- Local Storage API untuk persistence sederhana
-- SAW (Simple Additive Weighting) sebagai metode MCDM
 
 ## Menjalankan Secara Lokal
 
@@ -51,10 +55,5 @@ npm install
 npm run dev
 ```
 
-Buka http://localhost:3000 kemudian isi form pada landing. Setelah menekan "Dapatkan Rekomendasi" Anda akan diarahkan ke `/recommendation` untuk melihat top 3 laptop lengkap dengan penjelasan.
-
-## Pengembangan Lanjut
-
-- Ganti `lib/mockData.ts` dengan data katalog aktual atau API marketplace.
-- Sambungkan `lib/llm.ts` ke layanan AI sungguhan untuk penjelasan dinamis.
-- Tambahkan ekspor PDF atau fitur berbagi hasil agar pelanggan dapat menyimpan rekomendasi.
+Buka http://localhost:3000 untuk melihat landing page. Admin ada di `/admin` dan rekomendasi ada di `/rekomendasi`.
+Halaman konsultasi bot ada di `/konsultasi`.
