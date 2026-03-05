@@ -7,6 +7,7 @@ $pageTitle = isset($title) && $title !== '' ? $title . ' | ' . $appName : $appNa
 $flashes = flash_pull();
 $currentPage = current_page();
 $isAdminNavbar = is_admin_logged_in();
+$isCashierNavbar = is_cashier_logged_in();
 $pageHeading = isset($title) && $title !== '' ? (string)$title : $appName;
 $pageTaglines = [
     'katalog' => 'Lihat daftar spek laptop sebagai bahan pembanding sebelum menentukan pilihan akhir.',
@@ -14,6 +15,7 @@ $pageTaglines = [
     'rekomendasi' => 'Analisis hasil rekomendasi berbasis bobot RAM, storage, prosesor, dan harga.',
     'konsultasi' => 'Diskusikan kebutuhan perangkat Anda untuk mendapatkan arahan spek yang lebih tepat.',
     'admin' => 'Kelola data laptop agar perhitungan rekomendasi selalu akurat dan relevan.',
+    'cashier' => 'Catat transaksi penjualan laptop dan monitor pendapatan kasir secara terstruktur.',
 ];
 $pageTagline = $pageTaglines[$currentPage] ?? 'Sistem pendukung keputusan untuk pemilihan spek laptop yang terstruktur.';
 ?>
@@ -36,6 +38,7 @@ $pageTagline = $pageTaglines[$currentPage] ?? 'Sistem pendukung keputusan untuk 
         <nav class="nav-links">
             <?php if ($isAdminNavbar): ?>
                 <a class="<?= is_active_page('admin') ? 'active' : '' ?>" href="<?= e(url('admin')) ?>">Dashboard Admin</a>
+                <a class="<?= is_active_page('cashier') ? 'active' : '' ?>" href="<?= e(url('cashier')) ?>">Kasir</a>
                 <a class="<?= is_active_page('katalog') ? 'active' : '' ?>" href="<?= e(url('katalog')) ?>">Katalog Laptop</a>
                 <a class="<?= is_active_page('form-rekomendasi') ? 'active' : '' ?>" href="<?= e(url('form-rekomendasi')) ?>">Form Rekomendasi</a>
                 <a class="<?= is_active_page('home') ? 'active' : '' ?>" href="<?= e(url('home')) ?>">Landing</a>
@@ -44,10 +47,22 @@ $pageTagline = $pageTaglines[$currentPage] ?? 'Sistem pendukung keputusan untuk 
                     <input type="hidden" name="action" value="admin_logout">
                     <button class="nav-inline-button" type="submit">Logout Admin</button>
                 </form>
+            <?php elseif ($isCashierNavbar): ?>
+                <a class="<?= is_active_page('cashier') ? 'active' : '' ?>" href="<?= e(url('cashier')) ?>">Dashboard Kasir</a>
+                <a class="<?= is_active_page('katalog') ? 'active' : '' ?>" href="<?= e(url('katalog')) ?>">Katalog Laptop</a>
+                <a class="<?= is_active_page('form-rekomendasi') ? 'active' : '' ?>" href="<?= e(url('form-rekomendasi')) ?>">Form Rekomendasi</a>
+                <a class="<?= is_active_page('home') ? 'active' : '' ?>" href="<?= e(url('home')) ?>">Landing</a>
+                <form class="nav-inline-form" method="post" action="<?= e(url('cashier')) ?>">
+                    <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
+                    <input type="hidden" name="action" value="cashier_logout">
+                    <button class="nav-inline-button" type="submit">Logout Kasir</button>
+                </form>
             <?php else: ?>
                 <a class="<?= is_active_page('home') ? 'active' : '' ?>" href="<?= e(url('home')) ?>">Beranda</a>
+                <a class="<?= is_active_page('katalog') ? 'active' : '' ?>" href="<?= e(url('katalog')) ?>">Katalog</a>
                 <a class="<?= is_active_page('rekomendasi') ? 'active' : '' ?>" href="<?= e(url('rekomendasi')) ?>">Rekomendasi</a>
                 <a class="<?= is_active_page('konsultasi') ? 'active' : '' ?>" href="<?= e(url('konsultasi')) ?>">Konsultasi</a>
+                <a class="<?= is_active_page('cashier') ? 'active' : '' ?>" href="<?= e(url('cashier')) ?>">Kasir</a>
                 <a class="<?= is_active_page('admin') ? 'active' : '' ?>" href="<?= e(url('admin')) ?>">Admin</a>
             <?php endif; ?>
         </nav>
@@ -87,6 +102,7 @@ $pageTagline = $pageTaglines[$currentPage] ?? 'Sistem pendukung keputusan untuk 
             <a href="<?= e(url('home')) ?>">Beranda</a>
             <a href="<?= e(url('rekomendasi')) ?>">Rekomendasi</a>
             <a href="<?= e(url('konsultasi')) ?>">Konsultasi</a>
+            <a href="<?= e(url('cashier')) ?>">Kasir</a>
             <a href="<?= e(url('admin')) ?>">Admin</a>
         </nav>
     </div>

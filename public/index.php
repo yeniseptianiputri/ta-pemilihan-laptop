@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AdminController;
 use App\Controllers\CatalogController;
+use App\Controllers\CashierController;
 use App\Controllers\ConsultationController;
 use App\Controllers\HomeController;
 use App\Controllers\RecommendationController;
@@ -14,6 +15,8 @@ $container = require dirname(__DIR__) . '/app/bootstrap.php';
 
 $config = $container['config'];
 $laptopRepository = $container['laptopRepository'];
+$salesRepository = $container['salesRepository'];
+$userRepository = $container['userRepository'];
 $authService = $container['authService'];
 $recommendationService = new RecommendationService();
 
@@ -48,7 +51,20 @@ try {
             break;
 
         case 'admin':
-            (new AdminController($laptopRepository, $authService))->index();
+            (new AdminController(
+                $laptopRepository,
+                $authService,
+                $userRepository,
+                $salesRepository
+            ))->index();
+            break;
+
+        case 'cashier':
+            (new CashierController(
+                $laptopRepository,
+                $salesRepository,
+                $authService
+            ))->index();
             break;
 
         case 'konsultasi':

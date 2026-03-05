@@ -12,6 +12,24 @@ final class UserRepository
     {
     }
 
+    public function ensureRoleSchema(): void
+    {
+        $column = $this->pdo->query("SHOW COLUMNS FROM users LIKE 'role'")->fetch();
+        if ($column === false) {
+            return;
+        }
+
+        $type = strtolower((string)($column['Type'] ?? ''));
+        if (str_contains($type, "'cashier'")) {
+            return;
+        }
+
+        $this->pdo->exec(
+            "ALTER TABLE users
+            MODIFY role ENUM('admin', 'cashier', 'user') NOT NULL DEFAULT 'user'"
+        );
+    }
+
     public function findById(int $id): ?array
     {
         $statement = $this->pdo->prepare(
@@ -43,6 +61,34 @@ final class UserRepository
     public function emailExists(string $email): bool
     {
         return $this->findByEmail($email) !== null;
+    }
+
+    public function emailExistsForOtherUser(string $email, int $excludeId): bool
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT id
+            FROM users
+            WHERE email = :email
+            AND id <> :exclude_id
+            LIMIT 1'
+        );
+        $statement->execute([
+            'email' => strtolower(trim($email)),
+            'exclude_id' => $excludeId,
+        ]);
+
+        return $statement->fetch() !== false;
+    }
+
+    public function allManaged(): array
+    {
+        $statement = $this->pdo->query(
+            "SELECT id, name, email, role, created_at
+            FROM users
+            ORDER BY FIELD(role, 'admin', 'cashier', 'user'), id ASC"
+        );
+
+        return $statement->fetchAll();
     }
 
     public function create(
@@ -104,6 +150,52 @@ final class UserRepository
         ]);
     }
 
+    public function updateManagedUser(
+        int $id,
+        string $email,
+        string $role,
+        ?string $name,
+        ?string $passwordHash = null
+    ): void {
+        $fields = [
+            'name = :name',
+            'email = :email',
+            'role = :role',
+        ];
+        $params = [
+            'id' => $id,
+            'name' => $name,
+            'email' => strtolower(trim($email)),
+            'role' => $role,
+        ];
+
+        if ($passwordHash !== null && $passwordHash !== '') {
+            $fields[] = 'password_hash = :password_hash';
+            $params['password_hash'] = $passwordHash;
+        }
+
+        $statement = $this->pdo->prepare(
+            'UPDATE users
+            SET ' . implode(",\n                ", $fields) . '
+            WHERE id = :id'
+        );
+        $statement->execute($params);
+    }
+
+    public function deleteById(int $id): void
+    {
+        $statement = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
+        $statement->execute(['id' => $id]);
+    }
+
+    public function countByRole(string $role): int
+    {
+        $statement = $this->pdo->prepare('SELECT COUNT(*) FROM users WHERE role = :role');
+        $statement->execute(['role' => $role]);
+
+        return (int)$statement->fetchColumn();
+    }
+
     public function validateCredentials(string $email, string $password, ?string $role = null): ?array
     {
         $user = $this->findByEmail($email);
@@ -122,4 +214,3 @@ final class UserRepository
         return $user;
     }
 }
-

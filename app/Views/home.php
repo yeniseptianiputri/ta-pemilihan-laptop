@@ -36,7 +36,7 @@ $bestResult = $topResults[0] ?? null;
         <div class="market-topbar-meta">
             <span>Skema: Weighted Product</span>
             <span>Platform: PHP + MySQL</span>
-            <span>Akses: Admin &amp; User</span>
+            <span>Akses: Admin, Kasir &amp; User</span>
         </div>
     </div>
 
@@ -71,6 +71,7 @@ $bestResult = $topResults[0] ?? null;
         <a href="<?= e(url('katalog')) ?>">Katalog Laptop</a>
         <a href="<?= e(url('form-rekomendasi')) ?>">Form Rekomendasi</a>
         <a href="<?= e(url('konsultasi')) ?>">Konsultasi AI</a>
+        <a href="<?= e(url('cashier')) ?>">Panel Kasir</a>
         <a href="<?= e(url('admin')) ?>">Panel Admin</a>
     </nav>
 

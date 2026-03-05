@@ -9,7 +9,7 @@ $currentUser = is_array($currentUser ?? null) ? $currentUser : null;
     <section class="card">
         <p class="eyebrow">Akses</p>
         <h2>Akses Pengguna</h2>
-        <p class="lead">Login atau daftar dulu untuk menggunakan bot rekomendasi laptop.</p>
+        <p class="lead">Login atau daftar sebagai role user untuk menggunakan bot rekomendasi laptop.</p>
     </section>
 
     <section class="two-pane">

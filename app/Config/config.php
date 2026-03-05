@@ -15,6 +15,8 @@ return [
     'auth' => [
         'admin_email' => env('ADMIN_EMAIL', 'admin@laptop.local'),
         'admin_password' => env('ADMIN_PASSWORD', 'admin123'),
+        'cashier_email' => env('CASHIER_EMAIL', 'cashier@laptop.local'),
+        'cashier_password' => env('CASHIER_PASSWORD', 'cashier123'),
         'default_user_email' => env('USER_EMAIL', 'user@laptop.local'),
         'default_user_password' => env('USER_PASSWORD', 'user123'),
     ],
@@ -23,4 +25,3 @@ return [
         'model' => env('OPENAI_MODEL', 'gpt-4.1-mini'),
     ],
 ];
-

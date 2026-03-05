@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(120) NULL,
   email VARCHAR(190) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
-  role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
+  role ENUM('admin', 'cashier', 'user') NOT NULL DEFAULT 'user',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -27,3 +27,17 @@ CREATE TABLE IF NOT EXISTS laptops (
   INDEX idx_laptops_price (price)
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS sales_transactions (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  invoice_code VARCHAR(40) NOT NULL UNIQUE,
+  laptop_id INT UNSIGNED NOT NULL,
+  cashier_id INT UNSIGNED NOT NULL,
+  customer_name VARCHAR(120) NULL,
+  quantity SMALLINT UNSIGNED NOT NULL,
+  unit_price INT UNSIGNED NOT NULL,
+  total_price BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_sales_laptop (laptop_id),
+  INDEX idx_sales_cashier (cashier_id),
+  INDEX idx_sales_created_at (created_at)
+) ENGINE=InnoDB;

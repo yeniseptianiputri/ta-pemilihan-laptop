@@ -75,6 +75,20 @@ if (!function_exists('is_admin_logged_in')) {
     }
 }
 
+if (!function_exists('is_cashier_logged_in')) {
+    function is_cashier_logged_in(): bool
+    {
+        return isset($_SESSION['cashier_user_id']) && (int)$_SESSION['cashier_user_id'] > 0;
+    }
+}
+
+if (!function_exists('is_user_logged_in')) {
+    function is_user_logged_in(): bool
+    {
+        return isset($_SESSION['frontend_user_id']) && (int)$_SESSION['frontend_user_id'] > 0;
+    }
+}
+
 if (!function_exists('format_rupiah')) {
     function format_rupiah(float|int $value): string
     {

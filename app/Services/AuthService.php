@@ -10,6 +10,7 @@ use App\Repositories\UserRepository;
 final class AuthService
 {
     private const ADMIN_SESSION_KEY = 'admin_user_id';
+    private const CASHIER_SESSION_KEY = 'cashier_user_id';
     private const USER_SESSION_KEY = 'frontend_user_id';
 
     public function __construct(
@@ -24,6 +25,12 @@ final class AuthService
         $adminPassword = trim((string)($this->authConfig['admin_password'] ?? ''));
         if ($adminEmail !== '' && $adminPassword !== '') {
             $this->users->ensureUser($adminEmail, $adminPassword, 'admin', 'Administrator');
+        }
+
+        $cashierEmail = trim((string)($this->authConfig['cashier_email'] ?? ''));
+        $cashierPassword = trim((string)($this->authConfig['cashier_password'] ?? ''));
+        if ($cashierEmail !== '' && $cashierPassword !== '') {
+            $this->users->ensureUser($cashierEmail, $cashierPassword, 'cashier', 'Kasir Default');
         }
 
         $userEmail = trim((string)($this->authConfig['default_user_email'] ?? ''));
@@ -41,6 +48,7 @@ final class AuthService
         }
 
         Session::regenerate();
+        $this->clearRoleSessions();
         Session::set(self::ADMIN_SESSION_KEY, (int)$user['id']);
 
         return ['ok' => true];
@@ -71,14 +79,54 @@ final class AuthService
         return $user;
     }
 
+    public function loginCashier(string $email, string $password): array
+    {
+        $user = $this->users->validateCredentials($email, $password, 'cashier');
+        if ($user === null) {
+            return ['ok' => false, 'error' => 'Email atau password kasir salah.'];
+        }
+
+        Session::regenerate();
+        $this->clearRoleSessions();
+        Session::set(self::CASHIER_SESSION_KEY, (int)$user['id']);
+
+        return ['ok' => true];
+    }
+
+    public function logoutCashier(): void
+    {
+        Session::forget(self::CASHIER_SESSION_KEY);
+    }
+
+    public function isCashierLoggedIn(): bool
+    {
+        return Session::has(self::CASHIER_SESSION_KEY);
+    }
+
+    public function currentCashier(): ?array
+    {
+        $userId = (int)Session::get(self::CASHIER_SESSION_KEY, 0);
+        if ($userId <= 0) {
+            return null;
+        }
+
+        $user = $this->users->findById($userId);
+        if ($user === null || $user['role'] !== 'cashier') {
+            return null;
+        }
+
+        return $user;
+    }
+
     public function loginUser(string $email, string $password): array
     {
-        $user = $this->users->validateCredentials($email, $password);
+        $user = $this->users->validateCredentials($email, $password, 'user');
         if ($user === null) {
             return ['ok' => false, 'error' => 'Email atau password user salah.'];
         }
 
         Session::regenerate();
+        $this->clearRoleSessions();
         Session::set(self::USER_SESSION_KEY, (int)$user['id']);
 
         return ['ok' => true];
@@ -121,6 +169,7 @@ final class AuthService
         );
 
         Session::regenerate();
+        $this->clearRoleSessions();
         Session::set(self::USER_SESSION_KEY, $id);
 
         return ['ok' => true];
@@ -143,7 +192,18 @@ final class AuthService
             return null;
         }
 
-        return $this->users->findById($userId);
+        $user = $this->users->findById($userId);
+        if ($user === null || $user['role'] !== 'user') {
+            return null;
+        }
+
+        return $user;
+    }
+
+    private function clearRoleSessions(): void
+    {
+        Session::forget(self::ADMIN_SESSION_KEY);
+        Session::forget(self::CASHIER_SESSION_KEY);
+        Session::forget(self::USER_SESSION_KEY);
     }
 }
-
