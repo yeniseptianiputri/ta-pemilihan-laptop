@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/vendor
 /.pnp
 .pnp.*
 .yarn/*
@@ -38,9 +39,13 @@ yarn-error.log*
 .env.production.local
 !.env.example
 
+# php
+*.log
+/php_errors.log
+/storage
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
