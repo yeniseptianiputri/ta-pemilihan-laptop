@@ -86,6 +86,7 @@ README.md
 | Katalog | `index.php?page=katalog` | Daftar laptop + pencarian |
 | Form Rekomendasi | `index.php?page=form-rekomendasi` | Input filter + perhitungan WP |
 | Rekomendasi | `index.php?page=rekomendasi` | Halaman rekomendasi penuh |
+| Diagram Mermaid | `index.php?page=diagram` | Class diagram + activity diagram berbasis struktur kode |
 | Konsultasi | `index.php?page=konsultasi` | Auth user + konsultasi AI |
 | Kasir | `index.php?page=cashier` | Auth kasir + transaksi penjualan laptop |
 | Admin | `index.php?page=admin` | Auth admin + kelola laptop, user, dan monitoring transaksi |

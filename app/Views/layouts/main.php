@@ -13,6 +13,7 @@ $pageTaglines = [
     'katalog' => 'Lihat daftar spek laptop sebagai bahan pembanding sebelum menentukan pilihan akhir.',
     'form-rekomendasi' => 'Atur kriteria kebutuhan dan dapatkan ranking laptop dengan metode Weighted Product.',
     'rekomendasi' => 'Analisis hasil rekomendasi berbasis bobot RAM, storage, prosesor, dan harga.',
+    'diagram' => 'Class diagram dan activity diagram Mermaid sesuai implementasi sistem aplikasi.',
     'konsultasi' => 'Diskusikan kebutuhan perangkat Anda untuk mendapatkan arahan spek yang lebih tepat.',
     'admin' => 'Kelola data laptop agar perhitungan rekomendasi selalu akurat dan relevan.',
     'cashier' => 'Catat transaksi penjualan laptop dan monitor pendapatan kasir secara terstruktur.',
@@ -41,6 +42,7 @@ $pageTagline = $pageTaglines[$currentPage] ?? 'Sistem pendukung keputusan untuk 
                 <a class="<?= is_active_page('cashier') ? 'active' : '' ?>" href="<?= e(url('cashier')) ?>">Kasir</a>
                 <a class="<?= is_active_page('katalog') ? 'active' : '' ?>" href="<?= e(url('katalog')) ?>">Katalog Laptop</a>
                 <a class="<?= is_active_page('form-rekomendasi') ? 'active' : '' ?>" href="<?= e(url('form-rekomendasi')) ?>">Form Rekomendasi</a>
+                <a class="<?= is_active_page('diagram') ? 'active' : '' ?>" href="<?= e(url('diagram')) ?>">Diagram</a>
                 <a class="<?= is_active_page('home') ? 'active' : '' ?>" href="<?= e(url('home')) ?>">Landing</a>
                 <form class="nav-inline-form" method="post" action="<?= e(url('admin')) ?>">
                     <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
@@ -51,6 +53,7 @@ $pageTagline = $pageTaglines[$currentPage] ?? 'Sistem pendukung keputusan untuk 
                 <a class="<?= is_active_page('cashier') ? 'active' : '' ?>" href="<?= e(url('cashier')) ?>">Dashboard Kasir</a>
                 <a class="<?= is_active_page('katalog') ? 'active' : '' ?>" href="<?= e(url('katalog')) ?>">Katalog Laptop</a>
                 <a class="<?= is_active_page('form-rekomendasi') ? 'active' : '' ?>" href="<?= e(url('form-rekomendasi')) ?>">Form Rekomendasi</a>
+                <a class="<?= is_active_page('diagram') ? 'active' : '' ?>" href="<?= e(url('diagram')) ?>">Diagram</a>
                 <a class="<?= is_active_page('home') ? 'active' : '' ?>" href="<?= e(url('home')) ?>">Landing</a>
                 <form class="nav-inline-form" method="post" action="<?= e(url('cashier')) ?>">
                     <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
@@ -61,6 +64,7 @@ $pageTagline = $pageTaglines[$currentPage] ?? 'Sistem pendukung keputusan untuk 
                 <a class="<?= is_active_page('home') ? 'active' : '' ?>" href="<?= e(url('home')) ?>">Beranda</a>
                 <a class="<?= is_active_page('katalog') ? 'active' : '' ?>" href="<?= e(url('katalog')) ?>">Katalog</a>
                 <a class="<?= is_active_page('rekomendasi') ? 'active' : '' ?>" href="<?= e(url('rekomendasi')) ?>">Rekomendasi</a>
+                <a class="<?= is_active_page('diagram') ? 'active' : '' ?>" href="<?= e(url('diagram')) ?>">Diagram</a>
                 <a class="<?= is_active_page('konsultasi') ? 'active' : '' ?>" href="<?= e(url('konsultasi')) ?>">Konsultasi</a>
                 <a class="<?= is_active_page('cashier') ? 'active' : '' ?>" href="<?= e(url('cashier')) ?>">Kasir</a>
                 <a class="<?= is_active_page('admin') ? 'active' : '' ?>" href="<?= e(url('admin')) ?>">Admin</a>
@@ -101,6 +105,7 @@ $pageTagline = $pageTaglines[$currentPage] ?? 'Sistem pendukung keputusan untuk 
         <nav class="footer-meta" aria-label="Navigasi Footer">
             <a href="<?= e(url('home')) ?>">Beranda</a>
             <a href="<?= e(url('rekomendasi')) ?>">Rekomendasi</a>
+            <a href="<?= e(url('diagram')) ?>">Diagram</a>
             <a href="<?= e(url('konsultasi')) ?>">Konsultasi</a>
             <a href="<?= e(url('cashier')) ?>">Kasir</a>
             <a href="<?= e(url('admin')) ?>">Admin</a>

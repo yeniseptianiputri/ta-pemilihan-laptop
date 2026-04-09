@@ -741,6 +741,52 @@ tbody tr:hover {
     font-size: 0.98rem;
 }
 
+.diagram-stack {
+    display: grid;
+    gap: 1rem;
+}
+
+.diagram-scroll {
+    overflow-x: auto;
+}
+
+.diagram-view {
+    border: 1px solid #dbe2ec;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 0.8rem;
+}
+
+.diagram-view .mermaid {
+    min-width: 940px;
+}
+
+.diagram-raw {
+    margin-top: 0.8rem;
+}
+
+.diagram-raw summary {
+    cursor: pointer;
+    color: #334155;
+    font-weight: 600;
+}
+
+.code-block {
+    margin: 0.55rem 0 0;
+    border-radius: 12px;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 0.8rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.code-block code {
+    white-space: pre;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 .site-footer {
     border-top: 1px solid var(--border);
     background: rgba(255, 255, 255, 0.85);
@@ -850,6 +896,10 @@ tbody tr:hover {
 
     .market-product-grid {
         grid-template-columns: 1fr;
+    }
+
+    .diagram-view .mermaid {
+        min-width: 640px;
     }
 
     .footer-inner {

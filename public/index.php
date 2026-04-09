@@ -6,6 +6,7 @@ use App\Controllers\AdminController;
 use App\Controllers\CatalogController;
 use App\Controllers\CashierController;
 use App\Controllers\ConsultationController;
+use App\Controllers\DiagramController;
 use App\Controllers\HomeController;
 use App\Controllers\RecommendationController;
 use App\Services\ChatService;
@@ -76,6 +77,10 @@ try {
                 ),
                 $laptopRepository
             ))->index();
+            break;
+
+        case 'diagram':
+            (new DiagramController())->index();
             break;
 
         default:
