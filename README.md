@@ -309,6 +309,200 @@ sequenceDiagram
     C-->>View: simpan chat session + render
 ```
 
+### 7.6 Class Diagram Program
+```mermaid
+classDiagram
+    direction LR
+
+    class HomeController {
+        +index(): void
+    }
+    class CatalogController {
+        +index(): void
+    }
+    class RecommendationController {
+        +index(): void
+    }
+    class ConsultationController {
+        +index(): void
+    }
+    class CashierController {
+        +index(): void
+    }
+    class AdminController {
+        +index(): void
+    }
+
+    class AuthService {
+        +loginAdmin(email,password): array
+        +loginCashier(email,password): array
+        +loginUser(email,password): array
+        +registerUser(name,email,password,confirm): array
+        +logoutAdmin(): void
+        +logoutCashier(): void
+        +logoutUser(): void
+    }
+    class RecommendationService {
+        +recommend(catalog,filters): array
+        +defaultWeights(): array
+    }
+    class ChatService {
+        +ask(message,budget,useCase,catalog): string
+    }
+
+    class LaptopRepository {
+        +all(): array
+        +allForRanking(): array
+        +searchByName(query): array
+        +find(id): array
+        +create(payload): void
+        +update(id,payload): void
+        +delete(id): void
+    }
+    class UserRepository {
+        +findById(id): array
+        +findByEmail(email): array
+        +create(email,passwordHash,role,name): int
+        +updateManagedUser(...): void
+        +deleteById(id): void
+        +validateCredentials(email,password,role): array
+    }
+    class SalesTransactionRepository {
+        +create(laptopId,cashierId,qty,unitPrice,customer): string
+        +all(): array
+        +allByCashier(cashierId): array
+        +delete(id): void
+        +deleteByCashier(id,cashierId): bool
+    }
+
+    class Database {
+        <<static>>
+        +init(config): void
+        +connection(): PDO
+    }
+    class Session {
+        <<static>>
+        +start(): void
+        +regenerate(): void
+        +get(key,default): mixed
+        +set(key,value): void
+        +forget(key): void
+    }
+    class Csrf {
+        <<static>>
+        +token(): string
+        +verify(token): bool
+    }
+    class View {
+        <<static>>
+        +render(view,data): void
+    }
+    class Env {
+        <<static>>
+        +load(path): void
+    }
+
+    class MySQL {
+        <<database>>
+    }
+    class OpenAIAPI {
+        <<external API>>
+    }
+
+    HomeController --> LaptopRepository
+    HomeController --> RecommendationService
+    CatalogController --> LaptopRepository
+    RecommendationController --> LaptopRepository
+    RecommendationController --> RecommendationService
+    ConsultationController --> AuthService
+    ConsultationController --> ChatService
+    ConsultationController --> LaptopRepository
+    CashierController --> AuthService
+    CashierController --> LaptopRepository
+    CashierController --> SalesTransactionRepository
+    AdminController --> AuthService
+    AdminController --> LaptopRepository
+    AdminController --> UserRepository
+    AdminController --> SalesTransactionRepository
+
+    AuthService --> UserRepository
+    AuthService ..> Session
+    HomeController ..> Csrf
+    RecommendationController ..> Csrf
+    ConsultationController ..> Csrf
+    CashierController ..> Csrf
+    AdminController ..> Csrf
+    HomeController ..> View
+    CatalogController ..> View
+    RecommendationController ..> View
+    ConsultationController ..> View
+    CashierController ..> View
+    AdminController ..> View
+
+    LaptopRepository --> MySQL
+    UserRepository --> MySQL
+    SalesTransactionRepository --> MySQL
+    Database --> MySQL
+    ChatService --> OpenAIAPI
+```
+
+### 7.7 Activity Diagram Sistem
+```mermaid
+flowchart TD
+    A([Mulai]) --> B[User membuka aplikasi]
+    B --> C{Pilih modul}
+
+    C --> D[Rekomendasi WP]
+    D --> D1[Submit filter]
+    D1 --> D2{CSRF valid?}
+    D2 -- Tidak --> D3[Flash error + redirect]
+    D2 -- Ya --> D4[LaptopRepository ambil katalog ranking]
+    D4 --> D5[RecommendationService hitung skor WP]
+    D5 --> D6[Tampilkan ranking]
+    D6 --> C
+    D3 --> C
+
+    C --> E[Konsultasi AI]
+    E --> E1{Login role user?}
+    E1 -- Tidak --> E2[Login atau register user]
+    E2 --> E1
+    E1 -- Ya --> E3[Isi budget + kebutuhan]
+    E3 --> E4{Budget valid?}
+    E4 -- Tidak --> E5[Flash error]
+    E5 --> E
+    E4 -- Ya --> E6[ChatService kirim prompt ke OpenAI]
+    E6 --> E7[Terima jawaban]
+    E7 --> E8[Simpan riwayat chat di session]
+    E8 --> E9[Tampilkan riwayat]
+    E9 --> C
+
+    C --> F[Modul Kasir]
+    F --> F1{Login kasir valid?}
+    F1 -- Tidak --> F2[Flash error]
+    F2 --> F
+    F1 -- Ya --> F3[Input transaksi]
+    F3 --> F4{Data valid dan laptop ada?}
+    F4 -- Tidak --> F5[Flash error]
+    F5 --> F
+    F4 -- Ya --> F6[Simpan sales_transactions]
+    F6 --> F7[Tampilkan invoice dan riwayat kasir]
+    F7 --> C
+
+    C --> G[Modul Admin]
+    G --> G1{Login admin valid?}
+    G1 -- Tidak --> G2[Flash error]
+    G2 --> G
+    G1 -- Ya --> G3[CRUD laptop, user, transaksi]
+    G3 --> G4{Validasi rule admin + CSRF}
+    G4 -- Gagal --> G5[Flash error]
+    G5 --> G
+    G4 -- Valid --> G6[Repository execute action]
+    G6 --> G7[Tampilkan dashboard admin]
+    G7 --> C
+
+    C --> H([Selesai])
+```
+
 ## 8. Metode Weighted Product
 
 ### 8.1 Kriteria
@@ -490,4 +684,4 @@ Akun default akan di-ensure saat bootstrap aplikasi dijalankan.
 
 ---
 
-Jika dokumen ini dipakai untuk skripsi, bagian pada Bab Analisis dan Perancangan dapat mengacu ke: **Bagian 5 (User Flow), Bagian 6 (Use Case), Bagian 7 (Sequence Diagram), dan Bagian 9 (ERD)**.
+Jika dokumen ini dipakai untuk skripsi, bagian pada Bab Analisis dan Perancangan dapat mengacu ke: **Bagian 5 (User Flow), Bagian 6 (Use Case), Bagian 7 (Sequence + Class + Activity Diagram), dan Bagian 9 (ERD)**.
