@@ -322,6 +322,7 @@ final class AdminController
 
     private function validateLaptopPayload(array $input): array
     {
+        $brand = trim((string)($input['brand'] ?? 'Unknown'));
         $name = trim((string)($input['name'] ?? ''));
         $ram = (int)($input['ram'] ?? 0);
         $storage = (int)($input['storage'] ?? 0);
@@ -339,6 +340,7 @@ final class AdminController
         return [
             true,
             [
+                'brand' => $brand !== '' ? $brand : 'Unknown',
                 'name' => $name,
                 'ram' => $ram,
                 'storage' => $storage,

@@ -66,7 +66,7 @@ $currentCashier = is_array($currentCashier ?? null) ? $currentCashier : null;
                     <option value="">Pilih laptop</option>
                     <?php foreach ($laptops as $item): ?>
                         <option value="<?= e((string)$item['id']) ?>">
-                            <?= e($item['name']) ?> - <?= e(format_rupiah((int)$item['price'])) ?>
+                            <?= e((string)($item['brand'] ?? 'Unknown')) ?> - <?= e($item['name']) ?> - <?= e(format_rupiah((int)$item['price'])) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -135,4 +135,3 @@ $currentCashier = is_array($currentCashier ?? null) ? $currentCashier : null;
         </div>
     </section>
 <?php endif; ?>
-

@@ -10,7 +10,6 @@ use App\Controllers\DiagramController;
 use App\Controllers\HomeController;
 use App\Controllers\RecommendationController;
 use App\Services\ChatService;
-use App\Services\RecommendationService;
 
 $container = require dirname(__DIR__) . '/app/bootstrap.php';
 
@@ -19,7 +18,7 @@ $laptopRepository = $container['laptopRepository'];
 $salesRepository = $container['salesRepository'];
 $userRepository = $container['userRepository'];
 $authService = $container['authService'];
-$recommendationService = new RecommendationService();
+$recommendationService = $container['recommendationService'];
 
 $page = (string)($_GET['page'] ?? 'home');
 

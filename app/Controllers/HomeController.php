@@ -53,7 +53,9 @@ final class HomeController
 
             $results = $this->recommendationService->recommend(
                 $this->laptops->allForRanking(),
-                $filters
+                $filters,
+                null,
+                'home'
             );
             $hasRecommendation = true;
         }

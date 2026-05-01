@@ -103,8 +103,9 @@ final class ChatService
         $rows = [];
         foreach (array_slice($catalog, 0, 30) as $index => $item) {
             $rows[] = sprintf(
-                '%d. %s | RAM %dGB | Storage %dGB | Prosesor %d | Harga %d',
+                '%d. %s - %s | RAM %dGB | Storage %dGB | Prosesor %d | Harga %d',
                 $index + 1,
+                (string)($item['brand'] ?? 'Unknown'),
                 (string)($item['name'] ?? '-'),
                 (int)($item['ram'] ?? 0),
                 (int)($item['storage'] ?? 0),
@@ -138,4 +139,3 @@ final class ChatService
         return trim(implode('', $parts));
     }
 }
-

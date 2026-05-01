@@ -69,7 +69,17 @@ $salesSummary = is_array($salesSummary ?? null) ? $salesSummary : ['count' => 0,
                 <input type="hidden" name="id" value="<?= e($editing['id']) ?>">
             <?php endif; ?>
 
-            <label class="span-2">
+            <label>
+                Brand
+                <input
+                    type="text"
+                    name="brand"
+                    required
+                    value="<?= e($isEditing ? ($editing['brand'] ?? 'Unknown') : 'Unknown') ?>"
+                    placeholder="cth. ASUS"
+                >
+            </label>
+            <label>
                 Nama Laptop
                 <input
                     type="text"
@@ -120,6 +130,7 @@ $salesSummary = is_array($salesSummary ?? null) ? $salesSummary : ['count' => 0,
                 <thead>
                     <tr>
                         <th>Nama</th>
+                        <th>Brand</th>
                         <th>RAM</th>
                         <th>Storage</th>
                         <th>Prosesor</th>
@@ -130,12 +141,13 @@ $salesSummary = is_array($salesSummary ?? null) ? $salesSummary : ['count' => 0,
                 <tbody>
                     <?php if (empty($laptops)): ?>
                         <tr>
-                            <td colspan="6" class="text-center muted">Belum ada data laptop.</td>
+                            <td colspan="7" class="text-center muted">Belum ada data laptop.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($laptops as $item): ?>
                             <tr>
                                 <td><?= e($item['name']) ?></td>
+                                <td><?= e((string)($item['brand'] ?? 'Unknown')) ?></td>
                                 <td><?= e($item['ram']) ?> GB</td>
                                 <td><?= e($item['storage']) ?> GB</td>
                                 <td><?= e($item['processor']) ?></td>
@@ -320,4 +332,3 @@ $salesSummary = is_array($salesSummary ?? null) ? $salesSummary : ['count' => 0,
         </div>
     </section>
 <?php endif; ?>
-

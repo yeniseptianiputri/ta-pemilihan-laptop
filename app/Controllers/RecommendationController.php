@@ -49,7 +49,9 @@ final class RecommendationController
 
             $results = $this->recommendationService->recommend(
                 $this->laptops->allForRanking(),
-                $filters
+                $filters,
+                null,
+                $this->pageKey
             );
         }
 

@@ -14,29 +14,53 @@ final class UserRepository
 
     public function ensureRoleSchema(): void
     {
-        $column = $this->pdo->query("SHOW COLUMNS FROM users LIKE 'role'")->fetch();
-        if ($column === false) {
-            return;
+        $this->ensureRolesTable();
+        $this->ensureDefaultRoles();
+
+        if (!$this->hasColumn('users', 'role_id')) {
+            $this->pdo->exec('ALTER TABLE users ADD COLUMN role_id TINYINT UNSIGNED NULL AFTER password_hash');
         }
 
-        $type = strtolower((string)($column['Type'] ?? ''));
-        if (str_contains($type, "'cashier'")) {
-            return;
+        if ($this->hasColumn('users', 'role')) {
+            $this->pdo->exec(
+                "UPDATE users u
+                JOIN roles r ON r.code = u.role
+                SET u.role_id = r.id
+                WHERE u.role_id IS NULL"
+            );
         }
 
-        $this->pdo->exec(
-            "ALTER TABLE users
-            MODIFY role ENUM('admin', 'cashier', 'user') NOT NULL DEFAULT 'user'"
+        $defaultRoleId = $this->resolveRoleId('user');
+        $statement = $this->pdo->prepare(
+            'UPDATE users
+            SET role_id = :role_id
+            WHERE role_id IS NULL OR role_id = 0'
         );
+        $statement->execute(['role_id' => $defaultRoleId]);
+
+        if (!$this->hasIndex('users', 'idx_users_role_id')) {
+            $this->pdo->exec('ALTER TABLE users ADD INDEX idx_users_role_id (role_id)');
+        }
+
+        if (!$this->hasRoleForeignKey()) {
+            $this->pdo->exec(
+                'ALTER TABLE users
+                ADD CONSTRAINT fk_users_role_runtime
+                FOREIGN KEY (role_id) REFERENCES roles(id)
+                ON UPDATE CASCADE
+                ON DELETE RESTRICT'
+            );
+        }
     }
 
     public function findById(int $id): ?array
     {
         $statement = $this->pdo->prepare(
-            'SELECT id, name, email, password_hash, role, created_at
-            FROM users
-            WHERE id = :id
-            LIMIT 1'
+            "SELECT u.id, u.name, u.email, u.password_hash, r.code AS role, u.created_at
+            FROM users u
+            LEFT JOIN roles r ON r.id = u.role_id
+            WHERE u.id = :id
+            LIMIT 1"
         );
         $statement->execute(['id' => $id]);
         $row = $statement->fetch();
@@ -47,10 +71,11 @@ final class UserRepository
     public function findByEmail(string $email): ?array
     {
         $statement = $this->pdo->prepare(
-            'SELECT id, name, email, password_hash, role, created_at
-            FROM users
-            WHERE email = :email
-            LIMIT 1'
+            "SELECT u.id, u.name, u.email, u.password_hash, r.code AS role, u.created_at
+            FROM users u
+            LEFT JOIN roles r ON r.id = u.role_id
+            WHERE u.email = :email
+            LIMIT 1"
         );
         $statement->execute(['email' => strtolower(trim($email))]);
         $row = $statement->fetch();
@@ -83,9 +108,10 @@ final class UserRepository
     public function allManaged(): array
     {
         $statement = $this->pdo->query(
-            "SELECT id, name, email, role, created_at
-            FROM users
-            ORDER BY FIELD(role, 'admin', 'cashier', 'user'), id ASC"
+            "SELECT u.id, u.name, u.email, r.code AS role, u.created_at
+            FROM users u
+            LEFT JOIN roles r ON r.id = u.role_id
+            ORDER BY FIELD(r.code, 'admin', 'cashier', 'user'), u.id ASC"
         );
 
         return $statement->fetchAll();
@@ -98,14 +124,14 @@ final class UserRepository
         ?string $name = null
     ): int {
         $statement = $this->pdo->prepare(
-            'INSERT INTO users (name, email, password_hash, role)
-            VALUES (:name, :email, :password_hash, :role)'
+            'INSERT INTO users (name, email, password_hash, role_id)
+            VALUES (:name, :email, :password_hash, :role_id)'
         );
         $statement->execute([
             'name' => $name,
             'email' => strtolower(trim($email)),
             'password_hash' => $passwordHash,
-            'role' => $role,
+            'role_id' => $this->resolveRoleId($role),
         ]);
 
         return (int)$this->pdo->lastInsertId();
@@ -137,7 +163,7 @@ final class UserRepository
             'UPDATE users
             SET name = :name,
                 password_hash = :password_hash,
-                role = :role
+                role_id = :role_id
             WHERE id = :id'
         );
         $statement->execute([
@@ -146,7 +172,7 @@ final class UserRepository
             'password_hash' => $needsPasswordUpdate
                 ? password_hash($plainPassword, PASSWORD_DEFAULT)
                 : $current['password_hash'],
-            'role' => $needsRoleUpdate ? $role : $current['role'],
+            'role_id' => $needsRoleUpdate ? $this->resolveRoleId($role) : $this->resolveRoleId((string)$current['role']),
         ]);
     }
 
@@ -160,13 +186,13 @@ final class UserRepository
         $fields = [
             'name = :name',
             'email = :email',
-            'role = :role',
+            'role_id = :role_id',
         ];
         $params = [
             'id' => $id,
             'name' => $name,
             'email' => strtolower(trim($email)),
-            'role' => $role,
+            'role_id' => $this->resolveRoleId($role),
         ];
 
         if ($passwordHash !== null && $passwordHash !== '') {
@@ -190,8 +216,8 @@ final class UserRepository
 
     public function countByRole(string $role): int
     {
-        $statement = $this->pdo->prepare('SELECT COUNT(*) FROM users WHERE role = :role');
-        $statement->execute(['role' => $role]);
+        $statement = $this->pdo->prepare('SELECT COUNT(*) FROM users WHERE role_id = :role_id');
+        $statement->execute(['role_id' => $this->resolveRoleId($role)]);
 
         return (int)$statement->fetchColumn();
     }
@@ -212,5 +238,102 @@ final class UserRepository
         }
 
         return $user;
+    }
+
+    private function ensureRolesTable(): void
+    {
+        $this->pdo->exec(
+            'CREATE TABLE IF NOT EXISTS roles (
+                id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                code VARCHAR(20) NOT NULL UNIQUE,
+                label VARCHAR(60) NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB'
+        );
+    }
+
+    private function ensureDefaultRoles(): void
+    {
+        $statement = $this->pdo->prepare(
+            'INSERT INTO roles (code, label)
+            VALUES (:code, :label)
+            ON DUPLICATE KEY UPDATE label = VALUES(label)'
+        );
+
+        foreach ([
+            'admin' => 'Administrator',
+            'cashier' => 'Kasir',
+            'user' => 'Pengguna',
+        ] as $code => $label) {
+            $statement->execute([
+                'code' => $code,
+                'label' => $label,
+            ]);
+        }
+    }
+
+    private function resolveRoleId(string $role): int
+    {
+        $statement = $this->pdo->prepare('SELECT id FROM roles WHERE code = :code LIMIT 1');
+        $statement->execute(['code' => $role]);
+        $id = (int)$statement->fetchColumn();
+
+        if ($id > 0) {
+            return $id;
+        }
+
+        $fallback = $this->pdo->prepare('SELECT id FROM roles WHERE code = :code LIMIT 1');
+        $fallback->execute(['code' => 'user']);
+
+        return (int)$fallback->fetchColumn();
+    }
+
+    private function hasColumn(string $table, string $column): bool
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT COUNT(*)
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = :table
+            AND COLUMN_NAME = :column'
+        );
+        $statement->execute([
+            'table' => $table,
+            'column' => $column,
+        ]);
+
+        return (int)$statement->fetchColumn() > 0;
+    }
+
+    private function hasIndex(string $table, string $index): bool
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT COUNT(*)
+            FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = :table
+            AND INDEX_NAME = :index'
+        );
+        $statement->execute([
+            'table' => $table,
+            'index' => $index,
+        ]);
+
+        return (int)$statement->fetchColumn() > 0;
+    }
+
+    private function hasRoleForeignKey(): bool
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT COUNT(*)
+            FROM information_schema.KEY_COLUMN_USAGE
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = "users"
+            AND COLUMN_NAME = "role_id"
+            AND REFERENCED_TABLE_NAME = "roles"'
+        );
+        $statement->execute();
+
+        return (int)$statement->fetchColumn() > 0;
     }
 }

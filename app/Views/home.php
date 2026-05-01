@@ -93,7 +93,9 @@ $bestResult = $topResults[0] ?? null;
             <?php if (is_array($bestResult)): ?>
                 <div class="market-highlight">
                     <p class="market-highlight-label">Top Rekomendasi Saat Ini</p>
-                    <p class="market-highlight-title"><?= e($bestResult['name']) ?></p>
+                    <p class="market-highlight-title">
+                        <?= e((string)($bestResult['brand'] ?? 'Unknown')) ?> - <?= e($bestResult['name']) ?>
+                    </p>
                     <p class="market-highlight-text">
                         Harga <?= e(format_rupiah((int)$bestResult['price'])) ?>
                         dengan skor WP <?= e(number_format((float)$bestResult['skor'], 4)) ?>.
@@ -133,6 +135,7 @@ $bestResult = $topResults[0] ?? null;
                 <div class="market-product-grid">
                     <?php foreach ($laptops as $item): ?>
                         <article class="market-product-card">
+                            <p class="market-product-spec">Brand <?= e((string)($item['brand'] ?? 'Unknown')) ?></p>
                             <p class="market-product-name"><?= e($item['name']) ?></p>
                             <p class="market-product-spec">RAM <?= e($item['ram']) ?> GB</p>
                             <p class="market-product-spec">Storage <?= e($item['storage']) ?> GB</p>
@@ -235,6 +238,7 @@ $bestResult = $topResults[0] ?? null;
                                 <tr>
                                     <th>Rank</th>
                                     <th>Nama</th>
+                                    <th>Brand</th>
                                     <th>Harga</th>
                                     <th>Skor</th>
                                 </tr>
@@ -244,6 +248,7 @@ $bestResult = $topResults[0] ?? null;
                                     <tr>
                                         <td><?= e((string)($index + 1)) ?></td>
                                         <td><?= e($item['name']) ?></td>
+                                        <td><?= e((string)($item['brand'] ?? 'Unknown')) ?></td>
                                         <td><?= e(format_rupiah((int)$item['price'])) ?></td>
                                         <td><?= e(number_format((float)$item['skor'], 4)) ?></td>
                                     </tr>

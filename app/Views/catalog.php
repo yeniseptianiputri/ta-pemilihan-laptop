@@ -26,6 +26,7 @@ $laptops = is_array($laptops ?? null) ? $laptops : [];
             <thead>
                 <tr>
                     <th>Nama</th>
+                    <th>Brand</th>
                     <th>RAM</th>
                     <th>Storage</th>
                     <th>Prosesor</th>
@@ -35,12 +36,13 @@ $laptops = is_array($laptops ?? null) ? $laptops : [];
             <tbody>
                 <?php if (empty($laptops)): ?>
                     <tr>
-                        <td colspan="5" class="text-center muted">Tidak ada data laptop.</td>
+                        <td colspan="6" class="text-center muted">Tidak ada data laptop.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($laptops as $item): ?>
                         <tr>
                             <td><?= e($item['name']) ?></td>
+                            <td><?= e((string)($item['brand'] ?? 'Unknown')) ?></td>
                             <td><?= e($item['ram']) ?> GB</td>
                             <td><?= e($item['storage']) ?> GB</td>
                             <td><?= e($item['processor']) ?></td>

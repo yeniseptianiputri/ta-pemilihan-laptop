@@ -6,9 +6,11 @@ use App\Core\Database;
 use App\Core\Env;
 use App\Core\Session;
 use App\Repositories\LaptopRepository;
+use App\Repositories\RecommendationRepository;
 use App\Repositories\SalesTransactionRepository;
 use App\Repositories\UserRepository;
 use App\Services\AuthService;
+use App\Services\RecommendationService;
 
 require_once __DIR__ . '/autoload.php';
 
@@ -24,10 +26,14 @@ $connection = Database::connection();
 $userRepository = new UserRepository($connection);
 $laptopRepository = new LaptopRepository($connection);
 $salesRepository = new SalesTransactionRepository($connection);
+$recommendationRepository = new RecommendationRepository($connection);
 $authService = new AuthService($userRepository, $config['auth']);
+$recommendationService = new RecommendationService($recommendationRepository);
 
 $userRepository->ensureRoleSchema();
-$salesRepository->ensureTable();
+$laptopRepository->ensureSchema();
+$salesRepository->ensureSchema();
+$recommendationRepository->ensureSchema();
 $authService->ensureDefaultAccounts();
 $laptopRepository->seedDefaultsIfEmpty();
 
@@ -36,5 +42,7 @@ return [
     'userRepository' => $userRepository,
     'laptopRepository' => $laptopRepository,
     'salesRepository' => $salesRepository,
+    'recommendationRepository' => $recommendationRepository,
+    'recommendationService' => $recommendationService,
     'authService' => $authService,
 ];

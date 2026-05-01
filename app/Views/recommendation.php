@@ -122,6 +122,7 @@ $pageRoute = (string)($pageRoute ?? 'rekomendasi');
                     <tr>
                         <th>Rank</th>
                         <th>Nama</th>
+                        <th>Brand</th>
                         <th>RAM</th>
                         <th>Storage</th>
                         <th>Prosesor</th>
@@ -134,6 +135,7 @@ $pageRoute = (string)($pageRoute ?? 'rekomendasi');
                         <tr>
                             <td><?= e((string)($index + 1)) ?></td>
                             <td><?= e($item['name']) ?></td>
+                            <td><?= e((string)($item['brand'] ?? 'Unknown')) ?></td>
                             <td><?= e($item['ram']) ?> GB</td>
                             <td><?= e($item['storage']) ?> GB</td>
                             <td><?= e($item['processor']) ?></td>
@@ -152,7 +154,7 @@ $pageRoute = (string)($pageRoute ?? 'rekomendasi');
             </p>
             <?php foreach ($results as $item): ?>
                 <p>
-                    Laptop <strong><?= e($item['name']) ?></strong> direkomendasikan karena RAM
+                    Laptop <strong><?= e((string)($item['brand'] ?? 'Unknown')) ?> - <?= e($item['name']) ?></strong> direkomendasikan karena RAM
                     <?= e($item['ram']) ?> GB, storage <?= e($item['storage']) ?> GB,
                     prosesor <?= e($item['processor']) ?>, dan harga
                     <?= e(format_rupiah((int)$item['price'])) ?>.

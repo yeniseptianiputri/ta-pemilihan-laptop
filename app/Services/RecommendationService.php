@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Repositories\RecommendationRepository;
+
 final class RecommendationService
 {
     private array $defaultWeights = [
@@ -13,8 +15,18 @@ final class RecommendationService
         'price' => 0.2,
     ];
 
-    public function recommend(array $catalog, array $filters): array
+    public function __construct(private ?RecommendationRepository $recommendations = null)
     {
+    }
+
+    public function recommend(
+        array $catalog,
+        array $filters,
+        ?int $userId = null,
+        string $sourcePage = 'rekomendasi'
+    ): array {
+        $weights = $this->resolvedWeights();
+
         $filtered = array_values(array_filter($catalog, function (array $item) use ($filters): bool {
             $name = strtolower(trim((string)($filters['name'] ?? '')));
             if ($name !== '' && !str_contains(strtolower((string)$item['name']), $name)) {
@@ -47,10 +59,10 @@ final class RecommendationService
         $scored = [];
         foreach ($filtered as $item) {
             $score =
-                pow((float)$item['ram'], $this->defaultWeights['ram']) *
-                pow((float)$item['storage'], $this->defaultWeights['storage']) *
-                pow((float)$item['processor'], $this->defaultWeights['processor']) *
-                pow((float)$item['price'], -$this->defaultWeights['price']);
+                pow((float)$item['ram'], $weights['ram']) *
+                pow((float)$item['storage'], $weights['storage']) *
+                pow((float)$item['processor'], $weights['processor']) *
+                pow((float)$item['price'], -$weights['price']);
 
             $item['skor'] = $score;
             $scored[] = $item;
@@ -58,12 +70,41 @@ final class RecommendationService
 
         usort($scored, static fn (array $a, array $b): int => $b['skor'] <=> $a['skor']);
 
+        if ($this->recommendations !== null) {
+            $this->recommendations->saveSession(
+                $userId,
+                $filters,
+                $weights,
+                $scored,
+                $sourcePage
+            );
+        }
+
         return $scored;
     }
 
     public function defaultWeights(): array
     {
-        return $this->defaultWeights;
+        return $this->resolvedWeights();
+    }
+
+    private function resolvedWeights(): array
+    {
+        $weights = $this->defaultWeights;
+        if ($this->recommendations !== null) {
+            $weights = $this->recommendations->weightsFromCriteria($weights);
+        }
+
+        $sum = array_sum($weights);
+        if ($sum <= 0) {
+            return $this->defaultWeights;
+        }
+
+        return [
+            'ram' => $weights['ram'] / $sum,
+            'storage' => $weights['storage'] / $sum,
+            'processor' => $weights['processor'] / $sum,
+            'price' => $weights['price'] / $sum,
+        ];
     }
 }
-
